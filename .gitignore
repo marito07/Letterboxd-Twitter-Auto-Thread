@@ -125,6 +125,5 @@ dmypy.json
 .pyre/
 
 #Twitter Keys & more
-data
-*.txt
+.env
 *.jpg

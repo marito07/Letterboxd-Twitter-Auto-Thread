@@ -2,6 +2,9 @@ import tweepy
 import requests
 from bs4 import BeautifulSoup
 import time
+import os
+import dotenv
+
 
 def replace_line(file_name, line_num, text):
     lines = open(file_name, 'r').readlines()
@@ -15,15 +18,17 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleW
 
 data = open('data', 'r').read().splitlines()
 
-api_key = data[0]
-api_key_secret = data[1]
-access_token = data[2]
-access_token_secret = data[3]
+dotenv.load_dotenv()
 
-url = 'https://letterboxd.com/' + data[4] + '/films/diary/'
+api_key = os.environ["API_KEY"]
+api_key_secret = os.environ["API_KEY_SECRET"]
+access_token = os.environ["ACCESS_KEY"]
+access_token_secret = os.environ["ACCESS_KEY_SECRET"]
 
-twitterThreadID = data[5]
-listIndex = int(data[6])
+url = 'https://letterboxd.com/' + os.environ["TWITTER_NAME"] + '/films/diary/'
+
+twitterThreadID = data[0]
+listIndex = int(data[1])
 
 authenticator = tweepy.OAuthHandler(api_key, api_key_secret)
 authenticator.set_access_token(access_token, access_token_secret)
@@ -98,7 +103,6 @@ while True:
             lines.append('')
         lines.append(urlBoxId['value'])
         multiline_tweet = "\n".join(lines)
-        print(multiline_tweet)
         # Sends Tweet
         tweett = api.update_with_media(filename, status=multiline_tweet, 
                                  in_reply_to_status_id=twitterThreadID, 
@@ -108,8 +112,8 @@ while True:
 
         # Store data in the file
         
-        replace_line('data', 5, str(twitterThreadID))
-        replace_line('data', 6, str(listIndex))
+        replace_line('data', 0, str(twitterThreadID))
+        replace_line('data', 1, str(listIndex))
     else:
         print('No new movie')
         
