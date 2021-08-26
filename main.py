@@ -1,12 +1,14 @@
 import tweepy
-# Import requests (to download the page)
 import requests
 from bs4 import BeautifulSoup
-import re
 import time
-import string
-import os
 
+def replace_line(file_name, line_num, text):
+    lines = open(file_name, 'r').readlines()
+    lines[line_num] = text + '\n'
+    out = open(file_name, 'w')
+    out.writelines(lines)
+    out.close()
 
 #set the headers as a browser
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -35,7 +37,8 @@ while True:
     #parse the downloaded homepage and grab all text
     soup = BeautifulSoup(response.text, "lxml")
     last_movie = soup.find("tr", {"class": "diary-entry-row"})
-    if previous_movie != '' and last_movie != previous_movie:
+    rewatch = last_movie.find("td",{"class":"td-rewatch center icon-status-off"})
+    if previous_movie != '' and last_movie != previous_movie and rewatch != None:
         last_movie_text = last_movie.find("h3", {"class": "headline-3 prettify"})
         rating = last_movie.find("span", {"class": "rating"})
         movie_url =  last_movie_text.find("a")
@@ -46,27 +49,42 @@ while True:
             del movie_url_array[-2]
         response2 = requests.get('https://letterboxd.com/' + '/'.join(movie_url_array), headers=headers)
         soup2 = BeautifulSoup(response2.text, "lxml")
-        last_movie_img = soup2.find("img", {"class": "image"})
+
+        # Picks the year of the movie
         movie_year = soup2.find("small", {"class": "number"})
+
+        # Picks the directors text
         film_header = soup2.find("section", {"class": "film-header-lockup"})
         directors = film_header.find_all("span", {"class": "prettify"})
+        directors_str = [dire.text for dire in directors]
         directors_text = ''
-        for dir in directors:
-            directors_text += dir.text
-            if directors.index(dir) != len(directors)-2 and len(directors) != 1:
-                directors_text += ', '
-            if directors.index(dir) == len(directors)-2 and len(directors) != 1:
-                directors_text += ' & '
+        if soup2.find("a", {"id": "more-directors"}) == None:
+            directors_text = ' & '.join(', '.join(directors_str).rsplit(', ', 1))
+        else:
+            directors_text = ', '.join(directors_str) + ' & co.'
+
+        # Letterboxd URL
         urlBoxId = soup2.find("input", {"class": "field -transparent"})
+
+        # Movie Review
+        response3 = requests.get('https://letterboxd.com/' + movie_url['href'], headers=headers)
+        soup3 = BeautifulSoup(response3.text, "lxml")
+        review = soup3.find("div", {"class": "review body-text -prose -hero -loose"})
+
+        # Debug
         print(directors_text)
         print(last_movie_text)
-        print(last_movie_img['srcset'])
         print(urlBoxId['value'])
+
+        # Movie Poster
+        last_movie_img = soup2.find("img", {"class": "image"})
         filename = 'temp.jpg'
         requestImage = requests.get(last_movie_img['srcset'], stream=True)
         with open(filename, 'wb') as image:
             for chunk in requestImage:
                 image.write(chunk)
+
+        # Prepares the Tweet
         lines = []
         lines.append(str(listIndex) + '. ' + last_movie_text.text + ' (' + movie_year.text + ')')
         listIndex = listIndex + 1
@@ -74,16 +92,30 @@ while True:
         lines.append('')
         lines.append(rating.text.strip())
         lines.append('')
+        if review != None:
+            review_text = review.find(("p"))
+            lines.append(review_text.text.strip())
+            lines.append('')
         lines.append(urlBoxId['value'])
         multiline_tweet = "\n".join(lines)
+        print(multiline_tweet)
+        # Sends Tweet
         tweett = api.update_with_media(filename, status=multiline_tweet, 
                                  in_reply_to_status_id=twitterThreadID, 
-                                 auto_populate_reply_metadata=True)
+                                 auto_populate_reply_metadata=True)        
         twitterThreadID = tweett.id
+
+
+        # Store data in the file
+        
+        replace_line('data', 5, str(twitterThreadID))
+        replace_line('data', 6, str(listIndex))
     else:
         print('No new movie')
+        
     previous_movie = last_movie
-    #previous_movie_rating = soup.find("span", {"class": "rating rated-5"})
 
-    time.sleep(3)
+    time.sleep(300)
     
+
+
