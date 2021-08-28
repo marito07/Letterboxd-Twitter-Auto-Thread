@@ -4,7 +4,30 @@ from bs4 import BeautifulSoup
 import time
 import os
 import dotenv
+import mysql.connector
 
+
+dotenv.load_dotenv()
+
+
+mydb = mysql.connector.connect(user=str(os.environ['SQL_USER']),
+                               password=os.environ['SQL_PASSWORD'],
+                               host=os.environ['SQL_HOST'],
+                               database=os.environ['SQL_DATABASE'])
+
+mycursor = mydb.cursor()
+
+mycursor.execute("SELECT indexID FROM twitter_listID where id=1")
+
+myresult = mycursor.fetchone()[0]
+
+listIndex = int(myresult)
+
+mycursor.execute("SELECT tweet_id FROM tweet_id_table where id=1")
+
+myresult = mycursor.fetchone()[0]
+
+twitterThreadID = str(myresult)
 
 def replace_line(file_name, line_num, text):
     lines = open(file_name, 'r').readlines()
@@ -16,19 +39,12 @@ def replace_line(file_name, line_num, text):
 #set the headers as a browser
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 
-data = open('data', 'r').read().splitlines()
-
-dotenv.load_dotenv()
-
 api_key = os.environ["API_KEY"]
 api_key_secret = os.environ["API_KEY_SECRET"]
 access_token = os.environ["ACCESS_KEY"]
 access_token_secret = os.environ["ACCESS_KEY_SECRET"]
 
 url = 'https://letterboxd.com/' + os.environ["TWITTER_NAME"] + '/films/diary/'
-
-twitterThreadID = data[0]
-listIndex = int(data[1])
 
 authenticator = tweepy.OAuthHandler(api_key, api_key_secret)
 authenticator.set_access_token(access_token, access_token_secret)
@@ -110,16 +126,25 @@ while True:
         twitterThreadID = tweett.id
 
 
-        # Store data in the file
+        # Store data in the ddbb
         
-        replace_line('data', 0, str(twitterThreadID))
-        replace_line('data', 1, str(listIndex))
+        sql = "UPDATE twitter_listID SET indexID = " + str(listIndex) + " WHERE id = 1"
+
+        mycursor.execute(sql)
+
+        mydb.commit()
+
+        sql = "UPDATE tweet_id_table SET tweet_id = " + str(twitterThreadID) + " WHERE id = 1"
+
+        mycursor.execute(sql)
+
+        mydb.commit()
     else:
         print('No new movie')
         
     previous_movie = last_movie
 
-    time.sleep(300)
+    time.sleep(600)
     
 
 
