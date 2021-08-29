@@ -4,13 +4,29 @@ from bs4 import BeautifulSoup
 import time
 import os
 import dotenv
-import mysql.connector
+import psycopg2
 
 
 dotenv.load_dotenv()
 
 
-mydb = mysql.connector.connect(user=str(os.environ['SQL_USER']),
+DATABASE_URL = os.environ.get('DATABASE_URL')
+con = psycopg2.connect(DATABASE_URL)
+cur = con.cursor()
+
+cur.execute("SELECT indexID FROM twitter_listID where id=1")
+
+myresult = cur.fetchone()[0]
+
+listIndex = int(myresult)
+
+cur.execute("SELECT tweet_id FROM tweet_id_table where id=1")
+
+myresult = cur.fetchone()[0]
+
+twitterThreadID = str(myresult)
+
+"""mydb = mysql.connector.connect(user=str(os.environ['SQL_USER']),
                                password=os.environ['SQL_PASSWORD'],
                                host=os.environ['SQL_HOST'],
                                database=os.environ['SQL_DATABASE'])
@@ -27,14 +43,7 @@ mycursor.execute("SELECT tweet_id FROM tweet_id_table where id=1")
 
 myresult = mycursor.fetchone()[0]
 
-twitterThreadID = str(myresult)
-
-def replace_line(file_name, line_num, text):
-    lines = open(file_name, 'r').readlines()
-    lines[line_num] = text + '\n'
-    out = open(file_name, 'w')
-    out.writelines(lines)
-    out.close()
+twitterThreadID = str(myresult)"""
 
 #set the headers as a browser
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -130,15 +139,13 @@ while True:
         
         sql = "UPDATE twitter_listID SET indexID = " + str(listIndex) + " WHERE id = 1"
 
-        mycursor.execute(sql)
-
-        mydb.commit()
+        cur.execute(sql)
 
         sql = "UPDATE tweet_id_table SET tweet_id = " + str(twitterThreadID) + " WHERE id = 1"
 
-        mycursor.execute(sql)
+        cur.execute(sql)
 
-        mydb.commit()
+        con.commit()
     else:
         print('No new movie')
         
