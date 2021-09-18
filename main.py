@@ -6,6 +6,8 @@ import os
 import dotenv
 import psycopg2
 
+from telegram.ext import *
+
 
 dotenv.load_dotenv()
 
@@ -26,24 +28,10 @@ myresult = cur.fetchone()[0]
 
 twitterThreadID = str(myresult)
 
-"""mydb = mysql.connector.connect(user=str(os.environ['SQL_USER']),
-                               password=os.environ['SQL_PASSWORD'],
-                               host=os.environ['SQL_HOST'],
-                               database=os.environ['SQL_DATABASE'])
+api_token = os.environ["API_TOKEN"]
 
-mycursor = mydb.cursor()
-
-mycursor.execute("SELECT indexID FROM twitter_listID where id=1")
-
-myresult = mycursor.fetchone()[0]
-
-listIndex = int(myresult)
-
-mycursor.execute("SELECT tweet_id FROM tweet_id_table where id=1")
-
-myresult = mycursor.fetchone()[0]
-
-twitterThreadID = str(myresult)"""
+updater = Updater(api_token)
+dp = updater.dispatcher
 
 #set the headers as a browser
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -117,7 +105,6 @@ while True:
         # Prepares the Tweet
         lines = []
         lines.append(str(listIndex) + '. ' + last_movie_text.text + ' (' + movie_year.text + ')')
-        listIndex = listIndex + 1
         lines.append('Dir: ' + directors_text)
         lines.append('')
         lines.append(rating.text.strip())
@@ -134,6 +121,21 @@ while True:
                                  auto_populate_reply_metadata=True)        
         twitterThreadID = tweett.id
 
+        # Prepares the Tweet
+        lines = []
+        lines.append('*'+str(listIndex) + '. ' + last_movie_text.text + ' (' + movie_year.text + ')*')
+        lines.append('_Dir: ' + directors_text + '_')
+        lines.append('')
+        lines.append(rating.text.strip())
+        lines.append('')
+        if review != None:
+            review_text = review.find(("p"))
+            lines.append(review_text.text.strip())
+            lines.append('')
+        lines.append(urlBoxId['value'])
+        multiline_tweet = "\n".join(lines)
+
+        listIndex = listIndex + 1
 
         # Store data in the ddbb
         
@@ -146,6 +148,13 @@ while True:
         cur.execute(sql)
 
         con.commit()
+
+        cur.execute(sql)
+
+        con.commit()
+
+        
+        dp.bot.send_photo(chat_id=os.environ["CHANNEL_ID"], photo=last_movie_img['srcset'], caption=multiline_tweet, parse_mode= 'Markdown')
     else:
         print('No new movie')
         
