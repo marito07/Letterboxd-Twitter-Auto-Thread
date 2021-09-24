@@ -177,7 +177,7 @@ while True:
         
     previous_movie = last_movie
 
-    time.sleep(6)
+    time.sleep(600)
     
 
 
