@@ -22,6 +22,12 @@ myresult = cur.fetchone()[0]
 
 listIndex = int(myresult)
 
+cur.execute("SELECT indexID FROM miniseries where id=1")
+
+myresult = cur.fetchone()[0]
+
+listIndexSeries = int(myresult)
+
 cur.execute("SELECT tweet_id FROM tweet_id_table where id=1")
 
 myresult = cur.fetchone()[0]
@@ -68,6 +74,15 @@ while True:
         response2 = requests.get('https://letterboxd.com/' + '/'.join(movie_url_array), headers=headers)
         soup2 = BeautifulSoup(response2.text, "lxml")
 
+        # Checks if its a movie or a tv show
+        allButtons = soup2.findAll("a", {"class": "micro-button"})
+        auxString = str(allButtons)
+        series = auxString.find("/tv")
+        if series != -1:
+            listIndexFull = 'Miniserie ' + str(listIndexSeries)
+        else:
+            listIndexFull = listIndex
+
         # Picks the year of the movie
         movie_year = soup2.find("small", {"class": "number"})
 
@@ -104,7 +119,7 @@ while True:
 
         # Prepares the Tweet
         lines = []
-        lines.append(str(listIndex) + '. ' + last_movie_text.text + ' (' + movie_year.text + ')')
+        lines.append(str(listIndexFull) + '. ' + last_movie_text.text + ' (' + movie_year.text + ')')
         lines.append('Dir: ' + directors_text)
         lines.append('')
         lines.append(rating.text.strip())
@@ -123,7 +138,7 @@ while True:
 
         # Prepares the Tweet
         lines = []
-        lines.append('*'+str(listIndex) + '. ' + last_movie_text.text + ' (' + movie_year.text + ')*')
+        lines.append('*'+str(listIndexFull) + '. ' + last_movie_text.text + ' (' + movie_year.text + ')*')
         lines.append('_Dir: ' + directors_text + '_')
         lines.append('')
         lines.append(rating.text.strip())
@@ -135,7 +150,10 @@ while True:
         lines.append(urlBoxId['value'])
         multiline_tweet = "\n".join(lines)
 
-        listIndex = listIndex + 1
+        if series != -1:
+            listIndexSeries = listIndexSeries + 1
+        else:
+            listIndex = listIndex + 1
 
         # Store data in the ddbb
         
@@ -147,12 +165,11 @@ while True:
 
         cur.execute(sql)
 
-        con.commit()
+        sql = "UPDATE miniseries SET indexID = " + str(listIndexSeries) + " WHERE id = 1"
 
         cur.execute(sql)
 
         con.commit()
-
         
         dp.bot.send_photo(chat_id=os.environ["CHANNEL_ID"], photo=last_movie_img['srcset'], caption=multiline_tweet, parse_mode= 'Markdown')
     else:
@@ -160,7 +177,7 @@ while True:
         
     previous_movie = last_movie
 
-    time.sleep(600)
+    time.sleep(6)
     
 
 
