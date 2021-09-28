@@ -79,7 +79,7 @@ while True:
         auxString = str(allButtons)
         series = auxString.find("/tv")
         if series != -1:
-            listIndexFull = 'Miniserie ' + str(listIndexSeries)
+            listIndexFull = 'Serie ' + str(listIndexSeries)
         else:
             listIndexFull = listIndex
 
