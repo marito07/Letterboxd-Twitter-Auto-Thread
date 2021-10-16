@@ -63,6 +63,10 @@ while True:
     last_movie = soup.find("tr", {"class": "diary-entry-row"})
     rewatch = last_movie.find("td",{"class":"td-rewatch center icon-status-off"})
     if previous_movie != '' and last_movie != previous_movie and rewatch != None:
+        print('Last Movie:')
+        print(last_movie)
+        print('Previous Movie:')
+        print(previous_movie)
         last_movie_text = last_movie.find("h3", {"class": "headline-3 prettify"})
         rating = last_movie.find("span", {"class": "rating"})
         movie_url =  last_movie_text.find("a")
