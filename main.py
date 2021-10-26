@@ -111,7 +111,8 @@ while True:
         # Debug
         print(directors_text)
         print(last_movie_text)
-        print(urlBoxId['value'])
+        if urlBoxId is not None:
+            print(urlBoxId['value'])
 
         # Movie Poster
         last_movie_img = soup2.find("img", {"class": "image"})
@@ -132,7 +133,8 @@ while True:
             review_text = review.find(("p"))
             lines.append(review_text.text.strip())
             lines.append('')
-        lines.append(urlBoxId['value'])
+        if urlBoxId is not None:
+            lines.append(urlBoxId['value'])
         multiline_tweet = "\n".join(lines)
         # Sends Tweet
         tweett = api.update_with_media(filename, status=multiline_tweet, 
@@ -151,7 +153,8 @@ while True:
             review_text = review.find(("p"))
             lines.append(review_text.text.strip())
             lines.append('')
-        lines.append(urlBoxId['value'])
+        if urlBoxId is not None:
+            lines.append(urlBoxId['value'])
         multiline_tweet = "\n".join(lines)
 
         if series != -1:
