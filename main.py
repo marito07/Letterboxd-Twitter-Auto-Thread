@@ -61,13 +61,9 @@ while True:
     #parse the downloaded homepage and grab all text
     soup = BeautifulSoup(response.text, "lxml")
     last_movie = soup.find("tr", {"class": "diary-entry-row"})
+    last_movie_text = last_movie.find("h3", {"class": "headline-3 prettify"})
     rewatch = last_movie.find("td",{"class":"td-rewatch center icon-status-off"})
-    if previous_movie != '' and last_movie != previous_movie and rewatch != None:
-        print('Last Movie:')
-        print(last_movie)
-        print('Previous Movie:')
-        print(previous_movie)
-        last_movie_text = last_movie.find("h3", {"class": "headline-3 prettify"})
+    if previous_movie != '' and last_movie_text.text != previous_movie and rewatch != None:
         rating = last_movie.find("span", {"class": "rating"})
         movie_url =  last_movie_text.find("a")
         movie_url_array = movie_url['href'].split('/')
@@ -182,7 +178,7 @@ while True:
     else:
         print('No new movie')
         
-    previous_movie = last_movie
+    previous_movie = last_movie_text.text
 
     time.sleep(600)
     
