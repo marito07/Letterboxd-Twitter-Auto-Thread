@@ -135,7 +135,12 @@ while True:
         lines.append('')
         if review != None:
             review_text = review.find(("p"))
-            lines.append(review_text.text.strip())
+            aux_text_temp = review_text.text.strip()
+            custom_text_movie = aux_text_temp.split('//')
+            if len(custom_text_movie) == 2
+                lines.append(custom_text_movie[1])
+            else
+                lines.append(review_text.text.strip())
             lines.append('')
         if urlBoxId is not None:
             lines.append(urlBoxId['value'])
@@ -155,7 +160,12 @@ while True:
         lines.append('')
         if review != None:
             review_text = review.find(("p"))
-            lines.append(review_text.text.strip())
+            aux_text_temp = review_text.text.strip()
+            custom_text_movie = aux_text_temp.split('//')
+            if len(custom_text_movie) == 2
+                lines.append(custom_text_movie[1])
+            else
+                lines.append(review_text.text.strip())
             lines.append('')
         if urlBoxId is not None:
             lines.append(urlBoxId['value'])
