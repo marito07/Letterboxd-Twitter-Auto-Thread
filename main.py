@@ -118,17 +118,18 @@ while True:
             for chunk in requestImage:
                 image.write(chunk)
         
+        current_texto_nuevo = last_movie_text.text
         auxLastMovie = last_movie_text
         if review != None:
             review_text = review.find(("p"))
             aux_text_temp = review_text.text.strip()
             custom_text_movie = aux_text_temp.split('//')
             if len(custom_text_movie) == 2:
-                last_movie_text = custom_text_movie[0]
+                current_texto_nuevo = custom_text_movie[0]
         
         # Prepares the Tweet
         lines = []
-        lines.append(str(listIndexFull) + '. ' + last_movie_text.text + ' (' + movie_year.text + ')')
+        lines.append(str(listIndexFull) + '. ' + current_texto_nuevo + ' (' + movie_year.text + ')')
         lines.append('Dir: ' + directors_text)
         lines.append('')
         lines.append(rating.text.strip())
@@ -153,7 +154,7 @@ while True:
 
         # Prepares the Tweet
         lines = []
-        lines.append('*'+str(listIndexFull) + '. ' + last_movie_text.text + ' (' + movie_year.text + ')*')
+        lines.append('*'+str(listIndexFull) + '. ' + current_texto_nuevo + ' (' + movie_year.text + ')*')
         lines.append('_Dir: ' + directors_text + '_')
         lines.append('')
         lines.append(rating.text.strip())
