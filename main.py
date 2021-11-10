@@ -119,11 +119,11 @@ while True:
                 image.write(chunk)
         
         auxLastMovie = last_movie_text
-        if review != None
+        if review != None:
             review_text = review.find(("p"))
             aux_text_temp = review_text.text.strip()
             custom_text_movie = aux_text_temp.split('//')
-            if len(custom_text_movie) == 2
+            if len(custom_text_movie) == 2:
                 last_movie_text = custom_text_movie[0]
         
         # Prepares the Tweet
@@ -137,9 +137,9 @@ while True:
             review_text = review.find(("p"))
             aux_text_temp = review_text.text.strip()
             custom_text_movie = aux_text_temp.split('//')
-            if len(custom_text_movie) == 2
+            if len(custom_text_movie) == 2:
                 lines.append(custom_text_movie[1])
-            else
+            else:
                 lines.append(review_text.text.strip())
             lines.append('')
         if urlBoxId is not None:
@@ -162,9 +162,9 @@ while True:
             review_text = review.find(("p"))
             aux_text_temp = review_text.text.strip()
             custom_text_movie = aux_text_temp.split('//')
-            if len(custom_text_movie) == 2
+            if len(custom_text_movie) == 2:
                 lines.append(custom_text_movie[1])
-            else
+            else:
                 lines.append(review_text.text.strip())
             lines.append('')
         if urlBoxId is not None:
