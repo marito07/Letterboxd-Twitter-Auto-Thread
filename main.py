@@ -117,7 +117,15 @@ while True:
         with open(filename, 'wb') as image:
             for chunk in requestImage:
                 image.write(chunk)
-
+        
+        auxLastMovie = last_movie_text
+        if review != None
+            review_text = review.find(("p"))
+            aux_text_temp = review_text.text.strip()
+            custom_text_movie = aux_text_temp.split('//')
+            if len(custom_text_movie) == 2
+                last_movie_text = custom_text_movie[0]
+        
         # Prepares the Tweet
         lines = []
         lines.append(str(listIndexFull) + '. ' + last_movie_text.text + ' (' + movie_year.text + ')')
@@ -175,6 +183,8 @@ while True:
         con.commit()
         
         dp.bot.send_photo(chat_id=os.environ["CHANNEL_ID"], photo=last_movie_img['srcset'], caption=multiline_tweet, parse_mode= 'Markdown')
+        
+        last_movie_text = auxLastMovie
     else:
         print('No new movie')
         
