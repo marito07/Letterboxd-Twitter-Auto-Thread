@@ -11,6 +11,19 @@ from telegram.ext import *
 
 dotenv.load_dotenv()
 
+starsRating = {
+    1: "½",
+    2: "★",
+    3: "★½",
+    4: "★★",
+    5: "★★½",
+    6: "★★★",
+    7: "★★★½",
+    8: "★★★★",
+    9: "★★★★½",
+    10: "★★★★★"
+}
+
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 con = psycopg2.connect(DATABASE_URL)
@@ -49,15 +62,86 @@ access_token_secret = os.environ["ACCESS_KEY_SECRET"]
 
 url = 'https://letterboxd.com/' + os.environ["TWITTER_NAME"] + '/films/diary/'
 
+#serializd
+url2 = 'https://www.serializd.com/api/user/' + os.environ["TWITTER_NAME"] + '/reviewspage_v2/1?sort_by=backdate_desc&include_ratings=true'
+
 authenticator = tweepy.OAuthHandler(api_key, api_key_secret)
 authenticator.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(authenticator, wait_on_rate_limit=True)
 
 previous_movie = ''
+previous_show = ''
 while True:
     #download the homepage
     response = requests.get(url, headers=headers)
+    response2 = requests.get(url2, headers=headers)
+    
+    #parse serializd page
+    json_data = response2.json()
+    
+    
+    showName = json_data['reviews'][0]['showName']
+    if(previous_show != '' and previous_show != showName):
+        showName = json_data['reviews'][0]['showName']
+        rating = json_data['reviews'][0]['rating']
+        seasonId = json_data['reviews'][0]['seasonId']
+        showSeasons = json_data['reviews'][0]['showSeasons']
+        reviewText = json_data['reviews'][0]['reviewText']
+        imgUrlSer = 'https://image.tmdb.org/t/p/w500/' + json_data['reviews'][0]['showBannerImage']
+        
+        filtered = filter(lambda item: item['id'] == seasonId, showSeasons)
+        season = '(Season ' + str(list(filtered)[0]['seasonNumber']) + ')'
+        
+        filename2 = 'temp2.jpg'
+        requestImage2 = requests.get(imgUrlSer, stream=True)
+        with open(filename2, 'wb') as image:
+            for chunk in requestImage2:
+                image.write(chunk)
+        
+        # Prepares the Tweet
+        lines = []
+        lines.append('Serie ' + str(listIndexSeries) + '. ' + showName + ' - ' + season)
+        lines.append('')
+        lines.append(starsRating[rating])
+        lines.append('')
+        lines.append(reviewText)
+        
+        # Sends Tweet
+        tweett = api.update_with_media(filename, status=multiline_tweet, 
+                                  in_reply_to_status_id=twitterThreadID, 
+                                 auto_populate_reply_metadata=True)        
+        twitterThreadID = tweett.id
+
+        print(lines)
+        
+        # Prepares the Tweet
+        lines = []
+        lines.append('*Serie ' + str(listIndexSeries) + '. ' + showName + ' - ' + season + '*')
+        lines.append('')
+        lines.append(starsRating[rating])
+        lines.append('')
+        lines.append(reviewText)
+
+        print(lines)
+        
+        multiline_tweet = "\n".join(lines)
+        dp.bot.send_photo(chat_id=os.environ["CHANNEL_ID"], photo=imgUrlSer, caption=multiline_tweet, parse_mode= 'Markdown')
+
+        listIndexSeries = listIndexSeries + 1
+        
+        sql = "UPDATE tweet_id_table SET tweet_id = " + str(twitterThreadID) + " WHERE id = 1"
+
+        cur.execute(sql)
+        
+        sql = "UPDATE miniseries SET indexID = " + str(listIndexSeries) + " WHERE id = 1"
+
+        cur.execute(sql)
+
+        con.commit()
+    else:
+        print('No new show')
+    
     #parse the downloaded homepage and grab all text
     soup = BeautifulSoup(response.text, "lxml")
     last_movie = soup.find("tr", {"class": "diary-entry-row"})
@@ -200,7 +284,7 @@ while True:
         print('No new movie')
         
     previous_movie = last_movie_text.text
-
+    previous_show = showName
     time.sleep(600)
     
 
