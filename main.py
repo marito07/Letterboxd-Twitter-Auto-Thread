@@ -107,6 +107,7 @@ while True:
         lines.append('')
         lines.append(reviewText)
         
+        multiline_tweet = "\n".join(lines)
         # Sends Tweet
         tweett = api.update_with_media(filename, status=multiline_tweet, 
                                   in_reply_to_status_id=twitterThreadID, 
