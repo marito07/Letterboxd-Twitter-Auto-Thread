@@ -198,7 +198,7 @@ while True:
         # Movie Poster
         last_movie_img = soup2.find("img", {"class": "image"})
         filename = 'temp.jpg'
-        requestImage = requests.get(last_movie_img['srcset'], stream=True)
+        requestImage = requests.get(last_movie_img['src'], stream=True)
         with open(filename, 'wb') as image:
             for chunk in requestImage:
                 image.write(chunk)
