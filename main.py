@@ -278,7 +278,7 @@ while True:
 
         con.commit()
         
-        dp.bot.send_photo(chat_id=os.environ["CHANNEL_ID"], photo=last_movie_img['srcset'], caption=multiline_tweet, parse_mode= 'Markdown')
+        dp.bot.send_photo(chat_id=os.environ["CHANNEL_ID"], photo=last_movie_img['src'], caption=multiline_tweet, parse_mode= 'Markdown')
         
         last_movie_text = auxLastMovie
     else:
