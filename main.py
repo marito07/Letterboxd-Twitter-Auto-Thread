@@ -5,6 +5,7 @@ import time
 import os
 import dotenv
 import psycopg2
+import json
 
 from telegram.ext import *
 
@@ -196,9 +197,17 @@ while True:
             print(urlBoxId['value'])
 
         # Movie Poster
-        last_movie_img = soup2.find("img", {"class": "image"})
+        script = soup2.find('script', type='application/ld+json')
+        aux = script.string[17: ]
+        aux2 = aux[:-11]
+
+        URL_imagen_Array = json.loads(aux2)["image"].split('-')
+        URL_imagen_Array[len(URL_imagen_Array) - 2] = '690'
+        URL_imagen_Array[len(URL_imagen_Array) - 4] = '460'
+
+        URL_IMAgen = '-'.join(URL_imagen_Array)
         filename = 'temp.jpg'
-        requestImage = requests.get(last_movie_img['src'], stream=True)
+        requestImage = requests.get(URL_IMAgen, stream=True)
         with open(filename, 'wb') as image:
             for chunk in requestImage:
                 image.write(chunk)
@@ -278,7 +287,7 @@ while True:
 
         con.commit()
         
-        dp.bot.send_photo(chat_id=os.environ["CHANNEL_ID"], photo=last_movie_img['src'], caption=multiline_tweet, parse_mode= 'Markdown')
+        dp.bot.send_photo(chat_id=os.environ["CHANNEL_ID"], photo=URL_imagen_Array, caption=multiline_tweet, parse_mode= 'Markdown')
         
         last_movie_text = auxLastMovie
     else:
