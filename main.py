@@ -286,10 +286,8 @@ while True:
         cur.execute(sql)
 
         con.commit()
-        
-        aux_temp=URL_imagen_Array
 
-        dp.bot.send_photo(chat_id=os.environ["CHANNEL_ID"], photo=aux_temp, caption=multiline_tweet, parse_mode= 'Markdown')
+        dp.bot.send_photo(chat_id=os.environ["CHANNEL_ID"], photo=URL_IMAgen, caption=multiline_tweet, parse_mode= 'Markdown')
         
         last_movie_text = auxLastMovie
     else:
