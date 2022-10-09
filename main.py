@@ -110,7 +110,7 @@ while True:
         
         multiline_tweet = "\n".join(lines)
         # Sends Tweet
-        tweett = api.update_status_with_media(filename2, status=multiline_tweet, 
+        tweett = api.update_with_media(filename2, status=multiline_tweet, 
                                   in_reply_to_status_id=twitterThreadID, 
                                  auto_populate_reply_metadata=True)        
         twitterThreadID = tweett.id
