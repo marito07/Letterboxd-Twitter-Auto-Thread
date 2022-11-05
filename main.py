@@ -30,6 +30,11 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 con = psycopg2.connect(DATABASE_URL)
 cur = con.cursor()
 
+#TEST
+cur.execute("CREATE TABLE twitter_listID (id INT, indexID INT)")
+cur.execute("INSERT INTO twitter_listID VALUES (1, 213)")
+
+
 cur.execute("SELECT indexID FROM twitter_listID where id=1")
 
 myresult = cur.fetchone()[0]
