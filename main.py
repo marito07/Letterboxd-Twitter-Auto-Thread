@@ -1,6 +1,7 @@
 import tweepy
 import requests
 from bs4 import BeautifulSoup
+from http.server import HTTPServer
 import time
 import os
 import dotenv
@@ -30,11 +31,12 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 con = psycopg2.connect(DATABASE_URL)
 cur = con.cursor()
 
-#TEST
-cur.execute("CREATE TABLE miniseries (id INT, indexID INT)")
-cur.execute("INSERT INTO miniseries VALUES (1, 14)")
-cur.execute("CREATE TABLE tweet_id_table (id INT, tweet_id VARCHAR)")
-cur.execute("INSERT INTO tweet_id_table VALUES (1, '1588895760329986056')")
+
+# Get port number from the PORT environment varaible or 3000 if not specified
+port = os.getenv('PORT', 3000)
+
+server = HTTPServer(('0.0.0.0', port), MyServer)
+server.serve_forever()
 
 
 cur.execute("SELECT indexID FROM twitter_listID where id=1")
