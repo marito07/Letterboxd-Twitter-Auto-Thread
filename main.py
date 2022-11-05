@@ -31,8 +31,10 @@ con = psycopg2.connect(DATABASE_URL)
 cur = con.cursor()
 
 #TEST
-cur.execute("CREATE TABLE twitter_listID (id INT, indexID INT)")
-cur.execute("INSERT INTO twitter_listID VALUES (1, 213)")
+cur.execute("CREATE TABLE miniseries (id INT, indexID INT)")
+cur.execute("INSERT INTO miniseries VALUES (1, 14)")
+cur.execute("CREATE TABLE tweet_id_table (id INT, tweet_id VARCHAR)")
+cur.execute("INSERT INTO tweet_id_table VALUES (1, '1588895760329986056')")
 
 
 cur.execute("SELECT indexID FROM twitter_listID where id=1")
