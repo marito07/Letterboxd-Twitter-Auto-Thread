@@ -32,13 +32,6 @@ con = psycopg2.connect(DATABASE_URL)
 cur = con.cursor()
 
 
-# Get port number from the PORT environment varaible or 3000 if not specified
-port = os.getenv('PORT', 3000)
-
-server = HTTPServer(('0.0.0.0', port), MyServer)
-server.serve_forever()
-
-
 cur.execute("SELECT indexID FROM twitter_listID where id=1")
 
 myresult = cur.fetchone()[0]
