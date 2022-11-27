@@ -10,8 +10,26 @@ import json
 
 from telegram.ext import *
 
+class MyServer(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8"))
+        self.wfile.write(bytes("<p>Request: %s</p>" % self.path, "utf-8"))
+        self.wfile.write(bytes("<body>", "utf-8"))
+        self.wfile.write(bytes("<p>This is an example web server.</p>", "utf-8"))
+        self.wfile.write(bytes("</body></html>", "utf-8"))
+
+        
 
 dotenv.load_dotenv()
+
+
+# Get port number from the PORT environment varaible or 3000 if not specified
+port = os.getenv('PORT', 3000)
+server = HTTPServer(('0.0.0.0', port), MyServer)
+server.serve_forever()
 
 starsRating = {
     1: "½",
